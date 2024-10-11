@@ -1,4 +1,4 @@
-# 双系统Windows11+Ubuntu22.04LTS下profile的损坏和修复
+# （已解决）双系统Windows11+Ubuntu22.04LTS下profile的损坏和修复，以及initramfs状态的解决
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 先后尝试了**Linux Reader**和**ext2explore**两个软件，其中**Linux Reader可以读取并导出profile到Windows11，再由记事本进行修改，但无法写入/etc**，而**ext2explore**无法读取文件
 
-最终找到了**Ext2Fsd**将Linux分区挂载到win上（参考教程：[双系统：windows下编辑linux文件。_windows 下如何编辑 linux 分区内容-CSDN博客](https://blog.csdn.net/hnllc2012/article/details/52847381)），并在win中修改了profile
+最终找到了**Ext2Fsd**（这里有大坑）将Linux分区挂载到win上（参考教程：[双系统：windows下编辑linux文件。_windows 下如何编辑 linux 分区内容-CSDN博客](https://blog.csdn.net/hnllc2012/article/details/52847381)），并在win中修改了profile
 
 重启Ubuntu，甚至未能到达用户密码输入界面，直接报错：
 
@@ -152,5 +152,13 @@ ___
 
 大概是因为Windows重启时有一个**快速启动功能**，导致重启时Windows系统**没有完全关闭**，启动Linux时报错（这也是为什么Linux每次都会**检查磁盘是否clean**）
 
-关机以后再按物理按键开机就没有问题！
+~~关机以后再按物理按键开机就没有问题！~~（错误的，还是会失败）
+
+___
+
+#### （已解决）彻底解决initramfs问题
+
+关键问题在于启动Windows时，前述为了修改ext4文件的**Ext2Fsd**会对ext4文件造成损坏：
+
+Ext2Fsd 0.69版本无法支持ext4分区的**metadata_csum**特性，在启动Windows时会对ext4分区造成损坏，无法正常地被Ubuntu挂在，从而启动失败，进入**initramfs**（参考教程：[解决双系统启动 Ubuntu 进入 initramfs 问题 – CodeTalks (howardlau.me)](https://howardlau.me/it-chat/ubuntu-dual-boot-initramfs.html)）
 
